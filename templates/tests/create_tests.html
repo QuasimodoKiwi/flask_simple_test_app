@@ -1,0 +1,12 @@
+<h3>{{ message }}</h3>
+<form action="/create_tests" method="POST">
+    <select name="creator">
+        {% for teacher in teachers %}
+            <option value="{{ teacher['username'] }}">{{ teacher['username'] }}</option>
+        {% endfor %}
+    </select> <br><br>
+    <input type="text" name="q1" placeholder="Enter Question 1" required> <br>
+    <input type="text" name="q2" placeholder="Enter Question 2" required> <br>
+    <input type="text" name="q3" placeholder="Enter Question 3" required> <br><br>
+    <input type="submit" value="Submit">
+</form>

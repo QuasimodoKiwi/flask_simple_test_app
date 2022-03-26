@@ -1,0 +1,14 @@
+{% for test in tests %}
+    <ul>
+        Test ID {{ test['id'] }} <br>
+        Created by: {{ test['creator'] }}
+        <ul>
+            <li>Q1. {{ test['q1'] }}</li>
+            <li>Q2. {{ test['q2'] }}</li>
+            <li>Q3. {{ test['q3'] }}</li>
+        </ul>
+        <a href="/edit_test/{{ test['id'] }}"><button>Edit</button></a>
+        <a href="/delete_test/{{ test['id'] }}"><button>Delete</button></a>
+    </ul>
+
+{% endfor %}

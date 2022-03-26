@@ -1,0 +1,27 @@
+{% for response in responses %}
+    <ul>
+        Test ID {{ response['test_id'] }} <br>
+        Created by: {{ response['creator'] }} <br>
+        Answered by: {{ response['student_id'] }}
+        <ul>
+            <li>Q1. {{ response['q1'] }}</li>
+            <li>A1. {{ response['a1'] }}</li>
+            <li>Q2. {{ response['q2'] }}</li>
+            <li>A2. {{ response['a2'] }}</li>
+            <li>Q3. {{ response['q3'] }}</li>
+            <li>A3. {{ response['a3'] }}</li>
+        </ul>
+        <form action="/mark/{{ response['test_id'] }}" method="POST">
+            <br>
+            <select name="marked_by">
+                {% for teacher in teachers %}
+                    <option value="{{ teacher['username'] }}">{{ teacher['username'] }}</option>
+                {% endfor %}
+            </select> <br>
+            <input type="number" required />
+            <input type="submit" value="Submit" />
+        </form>
+    </ul>
+
+
+{% endfor %}

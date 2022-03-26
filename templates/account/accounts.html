@@ -1,0 +1,19 @@
+<form action="/accounts">
+    <select name = "type">
+        <option value="teacher">Teacher</option>
+        <option value="student">Student</option>
+    </select>
+    <input type="submit" value="Filter">
+    <a href="/accounts"><button>all accounts</button></a>
+</form>
+
+{% for account in accounts %}
+    <div>
+        <h3> {{ account['username'] }}</h3>
+        <ul>
+            <li> {{ account['first_name'] }} </li>
+            <li> {{ account['last_name'] }} </li>
+            <li> {{ account['account_type'] }} </li>
+        </ul>
+    </div>
+{% endfor %}
