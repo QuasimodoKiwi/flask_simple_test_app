@@ -9,6 +9,9 @@
         </ul>
         <a href="/edit_test/{{ test['id'] }}"><button>Edit</button></a>
         <a href="/delete_test/{{ test['id'] }}"><button>Delete</button></a>
+        <a href="/responses/{{ test['id'] }}"><button>See responses</button></a>
     </ul>
 
 {% endfor %}
+
+<a href="/create_tests"><button>Create test</button></a>
