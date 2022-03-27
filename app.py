@@ -9,7 +9,7 @@ conn = engine.connect()
 
 @app.route('/')
 def hello_world():  # put application's code here
-    return 'Hello World!'
+    return render_template("homepage.html")
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -136,8 +136,8 @@ def take_test(id):
 
 
 @app.route('/responses/<id>', methods=['GET'])
-def responses(id):
-    message = ""
+@app.route('/responses/<id>/<message>', methods=['GET'])
+def responses(id, message=""):
     responses = conn.execute(
         text(f'select * from answers join tests on answers.test_id = tests.id  where test_id = "{id}"')
     ).all()
@@ -146,7 +146,18 @@ def responses(id):
         text(f'select * from user where account_type="teacher"')
     ).all()
 
-    return render_template("misc/responses.html", responses=responses, teachers=teachers)
+    return render_template("misc/responses.html", responses=responses, teachers=teachers, message=message)
+
+
+@app.route('/mark/<id>/<student_id>', methods=['POST'])
+def mark(id, student_id):
+
+    conn.execute(text(
+        f"update answers set marks={request.form['marks']}, marked_by='{request.form['marked_by']}' where test_id={id} and student_id='{student_id}'"
+    ))
+    message = "Mark updated successfully"
+
+    return redirect(f"/responses/{id}/{message}")
 
 
 if __name__ == '__main__':
