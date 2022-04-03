@@ -13,10 +13,9 @@ conn = engine.connect()
 
 def login_required(next_func):
     @functools.wraps(next_func)
-    def inner_func(*args):
+    def inner_func(**kwargs):
         if "user" in session:
-            return next_func(*args)
-        # TODO error message
+            return next_func(**kwargs)
         return redirect("/login")
 
     return inner_func
@@ -24,9 +23,9 @@ def login_required(next_func):
 
 def only_teacher(next_func):
     @functools.wraps(next_func)
-    def inner_func(*args):
+    def inner_func(**kwargs):
         if "user" in session and session['user']['account_type'] == "teacher":
-            return next_func(*args)
+            return next_func(**kwargs)
         else:
             abort(403)  # or return a custom error page
 
@@ -35,9 +34,9 @@ def only_teacher(next_func):
 
 def only_student(next_func):
     @functools.wraps(next_func)
-    def inner_func(*args):
+    def inner_func(**kwargs):
         if "user" in session and session['user']['account_type'] == "student":
-            return next_func(*args)
+            return next_func(**kwargs)
         else:
             abort(403)  # or return a custom error page
 
@@ -186,13 +185,14 @@ def select_tests():
 
 
 @app.route('/take_test/<id>', methods=['GET', 'POST'])
+@only_student
 def take_test(id):
     message = ""
     if request.method == 'POST':
         print(request.form)
         data = {
             "test_id": id,
-            "student_id": request.form['student_id'],
+            "student_id": session['user']['username'],
             "a1": request.form['a1'],
             "a2": request.form['a2'],
             "a3": request.form['a3'],

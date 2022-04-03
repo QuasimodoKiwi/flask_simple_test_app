@@ -1,11 +1,5 @@
 <h3>{{ message }}</h3>
 <form action="/take_test/{{ test['id'] }}" method="POST">
-    <select name="student_id">
-        {% for student in students %}
-            <option value="{{ student['username'] }}">{{ student['username'] }}</option>
-        {% endfor %}
-    </select> <br><br>
-
     <label>1. {{ test['q1'] }}</label> <br>
     <input type="text" name="a1" placeholder="Enter you answer here"> <br>
     <label>2. {{ test['q2'] }}</label> <br>
