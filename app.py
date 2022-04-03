@@ -45,9 +45,11 @@ def only_student(next_func):
 
 @app.route('/')
 def hello_world():  # put application's code here
+    logged_in = False
     if 'user' in session:
         print(session['user'])
-    return render_template("homepage.html")
+        logged_in = True
+    return render_template("homepage.html", logged_in=logged_in)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -85,6 +87,7 @@ def login():  # put application's code here
         else:
             if check_password_hash(user['password'], request.form['password']):
                 message = "Success!"
+                session.clear()
                 session['user'] = {
                     "username": user['username'],
                     "name": user['first_name'] + " " + user['last_name'],
