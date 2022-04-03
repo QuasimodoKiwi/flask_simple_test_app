@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, flash, redirect
+from flask import Flask, render_template, request, flash, redirect, session
 from sqlalchemy import Column, Integer, String, Numeric, create_engine, text
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
 app = Flask(__name__)
+app.secret_key = 'super secret key'
 conn_str = "mysql://root:iit123@localhost/final"
 engine = create_engine(conn_str, echo=True)
 conn = engine.connect()
@@ -11,6 +12,8 @@ conn = engine.connect()
 
 @app.route('/')
 def hello_world():  # put application's code here
+    if 'user' in session:
+        print(session['user'])
     return render_template("homepage.html")
 
 
@@ -49,10 +52,21 @@ def login():  # put application's code here
         else:
             if check_password_hash(user['password'], request.form['password']):
                 message = "Success!"
+                session['user'] = {
+                    "username": user['username'],
+                    "name": user['first_name'] + " " + user['last_name'],
+                    "account_type": user['account_type']
+                }
             else:
                 message = "Wrong password!"
         return render_template("account/login.html", message=message)
     return render_template("account/login.html")
+
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect("/")
 
 
 @app.route('/accounts', methods=['GET'])
