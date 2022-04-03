@@ -2,12 +2,21 @@ from flask import Flask, render_template, request, flash, redirect, session
 from sqlalchemy import Column, Integer, String, Numeric, create_engine, text
 from werkzeug.security import check_password_hash, generate_password_hash
 
-
 app = Flask(__name__)
 app.secret_key = 'super secret key'
 conn_str = "mysql://root:iit123@localhost/final"
 engine = create_engine(conn_str, echo=True)
 conn = engine.connect()
+
+
+def login_required(next_func):
+    def inner_func(*args):
+        if "user" in session:
+            return next_func(*args)
+        # TODO error message
+        return redirect("/login")
+
+    return inner_func
 
 
 @app.route('/')
@@ -23,7 +32,7 @@ def register():  # put application's code here
 
     if request.method == 'POST':
         user = conn.execute(
-                text('select * from user where username = :username'), request.form).one_or_none()
+            text('select * from user where username = :username'), request.form).one_or_none()
 
         if user is not None:
             message = "User already exists!"
@@ -45,7 +54,7 @@ def login():  # put application's code here
 
     if request.method == 'POST':
         user = conn.execute(
-                text('select * from user where username = :username'), request.form).one_or_none()
+            text('select * from user where username = :username'), request.form).one_or_none()
 
         if user is None:
             message = "User does not exist!"
@@ -141,6 +150,7 @@ def edit_tests_post(id):
 
 
 @app.route('/take_test', methods=['GET', 'POST'])
+@login_required
 def select_tests():
     tests = conn.execute(
         text(f'select * from tests')
@@ -197,7 +207,6 @@ def responses(id, message=""):
 
 @app.route('/mark/<id>/<student_id>', methods=['POST'])
 def mark(id, student_id):
-
     conn.execute(text(
         f"update answers set marks={request.form['marks']}, marked_by='{request.form['marked_by']}' where test_id={id} and student_id='{student_id}'"
     ))
