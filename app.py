@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request, flash, redirect, session
+import functools
+
+from flask import Flask, render_template, request, flash, redirect, session, abort
 from sqlalchemy import Column, Integer, String, Numeric, create_engine, text
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -10,11 +12,34 @@ conn = engine.connect()
 
 
 def login_required(next_func):
+    @functools.wraps(next_func)
     def inner_func(*args):
         if "user" in session:
             return next_func(*args)
         # TODO error message
         return redirect("/login")
+
+    return inner_func
+
+
+def only_teacher(next_func):
+    @functools.wraps(next_func)
+    def inner_func(*args):
+        if "user" in session and session['user']['account_type'] == "teacher":
+            return next_func(*args)
+        else:
+            abort(403)  # or return a custom error page
+
+    return inner_func
+
+
+def only_student(next_func):
+    @functools.wraps(next_func)
+    def inner_func(*args):
+        if "user" in session and session['user']['account_type'] == "student":
+            return next_func(*args)
+        else:
+            abort(403)  # or return a custom error page
 
     return inner_func
 
@@ -79,6 +104,7 @@ def logout():
 
 
 @app.route('/accounts', methods=['GET'])
+@login_required
 def get_accounts():  # put application's code here
     account_type = request.args.get('type')
     if account_type:
@@ -109,6 +135,7 @@ def create_tests():
 
 
 @app.route('/tests')
+@only_teacher
 def get_tests():
     tests = conn.execute(
         text(f'select * from tests')
@@ -150,7 +177,7 @@ def edit_tests_post(id):
 
 
 @app.route('/take_test', methods=['GET', 'POST'])
-@login_required
+@only_student
 def select_tests():
     tests = conn.execute(
         text(f'select * from tests')
