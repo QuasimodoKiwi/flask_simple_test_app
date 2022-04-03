@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, flash, redirect
 from sqlalchemy import Column, Integer, String, Numeric, create_engine, text
+from werkzeug.security import check_password_hash, generate_password_hash
+
 
 app = Flask(__name__)
 conn_str = "mysql://root:iit123@localhost/final"
@@ -14,13 +16,43 @@ def hello_world():  # put application's code here
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():  # put application's code here
+    message = ""
+
     if request.method == 'POST':
-        conn.execute(
-            text('insert into user values(:username, :first_name, :last_name, :password, :account_type)'),
-            request.form
-        )
-        return render_template("account/register.html", message="Success")
+        user = conn.execute(
+                text('select * from user where username = :username'), request.form).one_or_none()
+
+        if user is not None:
+            message = "User already exists!"
+        else:
+            input_data = request.form.to_dict()
+            input_data['password'] = generate_password_hash(input_data['password'])
+            conn.execute(
+                text('insert into user values(:username, :first_name, :last_name, :password, :account_type)'),
+                input_data
+            )
+            message = "Success"
+        return render_template("account/register.html", message=message)
     return render_template("account/register.html")
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():  # put application's code here
+    message = ""
+
+    if request.method == 'POST':
+        user = conn.execute(
+                text('select * from user where username = :username'), request.form).one_or_none()
+
+        if user is None:
+            message = "User does not exist!"
+        else:
+            if check_password_hash(user['password'], request.form['password']):
+                message = "Success!"
+            else:
+                message = "Wrong password!"
+        return render_template("account/login.html", message=message)
+    return render_template("account/login.html")
 
 
 @app.route('/accounts', methods=['GET'])
