@@ -10,9 +10,9 @@ conn = engine.connect()
 
 
 def login_required(next_func):
-    def inner_func(*args):
+    def inner_func(**kwargs):
         if "user" in session:
-            return next_func(*args)
+            return next_func(**kwargs)
         # TODO error message
         return redirect("/login")
 
